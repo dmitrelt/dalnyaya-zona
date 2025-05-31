@@ -1,0 +1,25 @@
+{% load forum_tags%}
+
+<header class="header">
+    <div class="header-content">
+        <div class="logo">
+            <a href="#">
+                <p>ДАЛЬНЯЯ ЗОНА</p>
+            </a>
+        </div>
+
+        <div class="signboard">
+            <p>Форум</p>
+        </div>
+        
+        <div class="profile">
+            <a href="{% url 'users:profile' %}" id="profile-button">
+                {% if user.is_authenticated and user.avatar %}
+                    <img src="{{ user.avatar.url }}" alt="Avatar" class="avatar-small">
+                {% else %}
+                    <i class="bi bi-person-circle"></i>
+                {% endif %}
+            </a>
+        </div>
+    </div>
+</header>

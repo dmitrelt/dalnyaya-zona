@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-form">
+        <h1>Вход</h1>
+        <form method="post" id="login-form" novalidate>
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="form-group">
+                {{ field.label_tag }}
+                {{ field }}
+                <div class="error-message" id="{{ field.id_for_label }}-error"></div>
+                {% if field.errors %}
+                <div class="error">{{ field.errors }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+            <button type="submit" class="submit-button">Войти</button>
+        </form>
+        <p>Нет аккаунта? <a href="{% url 'users:register' %}">Зарегистрироваться</a></p>
+    </div>
+</div>
+{% block script %}
+<script src="{% static 'forum/js/script.js' %}"></script>
+{% endblock %}
+{% endblock %}

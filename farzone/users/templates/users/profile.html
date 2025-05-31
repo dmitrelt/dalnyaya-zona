@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-header">
+        <div class="profile-avatar">
+            {% if profile_user.avatar %}
+                <img src="{{ profile_user.avatar.url }}" alt="Avatar" class="avatar-large">
+            {% else %}
+                <div class="avatar-placeholder">
+                    <i class="bi bi-person-circle"></i>
+                </div>
+            {% endif %}
+        </div>
+        <div class="profile-info">
+            <h1>{{ profile_user.username }}</h1>
+            {% if is_own_profile %}
+            <div class="profile-actions">
+                <a href="{% url 'users:profile_edit' %}" class="edit-profile-btn">
+                    <i class="bi bi-pencil"></i> Редактировать профиль
+                </a>
+                <form action="{% url 'users:logout' %}" method="post" class="logout-form">
+                    {% csrf_token %}
+                    <button type="submit" class="logout-button">Выйти</button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="profile-equipment">
+        <h2>Ракетка</h2>
+        <div class="equipment-grid">
+            <div class="equipment-item">
+                <span class="equipment-label">Основание:</span>
+                <span class="equipment-value">{{ profile_user.blade|default:"Не указано" }}</span>
+            </div>
+            <div class="equipment-item">
+                <span class="equipment-label">Накладка FH:</span>
+                <span class="equipment-value">{{ profile_user.rubber_fh|default:"Не указано" }}</span>
+            </div>
+            <div class="equipment-item">
+                <span class="equipment-label">Накладка BH:</span>
+                <span class="equipment-value">{{ profile_user.rubber_bh|default:"Не указано" }}</span>
+            </div>
+        </div>
+    </div>
+
+    {% if profile_user.bio %}
+    <div class="profile-bio">
+        <h2>О себе</h2>
+        <p>{{ profile_user.bio }}</p>
+    </div>
+    {% endif %}
+
+    <div class="user-posts">
+        <h2>Публикации пользователя</h2>
+        {% if posts %}
+            <ul class="posts-list">
+                {% for post in posts %}
+                <li>
+                    <a href="{{ post.get_absolute_url }}" class="post-link">
+                        {{ post.title }} ({{ post.created_at|date:"d.m.Y" }})
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Пока нет публикаций</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

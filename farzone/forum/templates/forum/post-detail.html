@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="forum-main">
+    <div class="categories-sidebar">
+        <ul class="categories-list">
+            {% for category in categories %}
+            <li class="category-item {% if category == active_category %}active{% endif %}">
+                <a href="{{ category.get_absolute_url }}" class="category-link">{{ category.title }}</a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="posts-main">
+        <div class="post-detail" data-post-id="{{ post.id }}" data-user-id="{{ user.id|default:0 }}">
+            <div class="post-header">
+                <h1 class="post-title">{{ post.title }}</h1>
+                <div class="post-meta">
+                    <span class="post-author">
+                        <a href="{% url 'users:profile_view' username=post.author.username %}">
+                            {% if post.author.avatar %}
+                                <img src="{{ post.author.avatar.url }}" alt="Avatar" class="avatar-small">
+                            {% else %}
+                                <div class="avatar-placeholder avatar-small">
+                                    <i class="bi bi-person-circle"></i>
+                                </div>
+                            {% endif %}
+                        </a>
+                    </span>
+
+                    <span class="post-username">{{ post.author.username }}</span>
+
+                    <span class="post-date">
+                        <i class="bi bi-clock"></i>
+                        {{ post.created_at|date:"d.m.Y H:i" }}
+                    </span>
+
+                    <span class="post-likes">
+                        <i class="bi {% if user_liked_post %}bi-heart-fill{% else %}bi-heart{% endif %} like-icon"
+                           data-post-id="{{ post.id }}"
+                           data-post-slug="{{ post.slug }}"
+                           data-category-slug="{{ post.category.slug }}"
+                           data-liked="{% if user_liked_post %}true{% else %}false{% endif %}"></i>
+                        <span class="likes-count" data-post-id="{{ post.id }}">{{ post_likes_count }}</span>
+                    </span>
+                </div>
+            </div>
+
+            <div class="post-content">
+                <p>{{ post.content|linebreaks }}</p>
+            </div>
+        </div>
+
+        <div class="comments-section" id="comments">
+            <h2 class="comments-title">Комментарии</h2>
+
+            <div class="comment-form" id="comment-form">
+                {% if user.is_authenticated %}
+                <form method="post" action="{% url 'add_comment' category_slug=post.category.slug post_slug=post.slug %}">
+                    {% csrf_token %}
+                    {{ comment_form.as_p }}
+                    <button type="submit" class="comment-submit">Отправить</button>
+                </form>
+                {% else %}
+                <div class="auth-required">
+                    <p>Чтобы оставить комментарий, пожалуйста <a href="{% url 'users:login' %}?next={% url 'post_detail' category_slug=post.category.slug post_slug=post.slug %}#comment-form">войдите</a> или <a href="{% url 'users:register' %}">зарегистрируйтесь</a></p>
+                </div>
+                {% endif %}
+            </div>
+
+            <ul class="comments-list">
+                {% for comment_data in comments %}
+                <li class="comment">
+                    <div class="comment-header">
+                        <span class="comment-author">
+                            {% if comment_data.comment.author and comment_data.comment.author.username %}
+                            <a href="{% url 'users:profile_view' username=comment_data.comment.author.username %}">
+                                {% if comment_data.comment.author.avatar %}
+                                    <img src="{{ comment_data.comment.author.avatar.url }}" alt="Avatar" class="avatar-small">
+                                {% else %}
+                                    <div class="avatar-placeholder avatar-small">
+                                        <i class="bi bi-person-circle"></i>
+                                    </div>
+                                {% endif %}
+                            </a>
+                            {% else %}
+                            <div class="avatar-placeholder avatar-small">
+                                <i class="bi bi-person-circle"></i>
+                            </div>
+                            {% endif %}
+                        </span>
+
+                        <span class="comment-username">
+                            {{ comment_data.comment.author.username|default:"Удаленный пользователь" }}
+                        </span>
+
+                        <span class="comment-date">
+                            <i class="bi bi-clock"></i>
+                            {{ comment_data.comment.created_at|date:"d.m.Y H:i" }}
+                        </span>
+                    </div>
+                    <div class="comment-content">
+                        {{ comment_data.comment.content|linebreaks }}
+                    </div>
+                </li>
+                {% empty %}
+                <li class="no-comments">Пока нет комментариев. Будьте первым!</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script src="{% static 'forum/js/script.js' %}"></script>
+<script src="{% static 'forum/js/likes.js' %}"></script>
+<script src="{% static 'forum/js/post_websocket.js' %}"></script>
+{% endblock %}

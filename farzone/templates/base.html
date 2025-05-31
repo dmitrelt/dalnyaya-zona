@@ -1,0 +1,50 @@
+{% load static %}
+{% load forum_tags %}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link type="text/css" href="{% static 'forum/css/style.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body data-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}">
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <a href="{% url 'welcome' %}">
+                    <p>ДАЛЬНЯЯ ЗОНА</p>
+                </a>
+            </div>
+
+            <div class="signboard">
+                <p>Форум</p>
+            </div>
+
+            <div class="profile">
+                <a href="{% url 'users:profile' %}" id="profile-button">
+                    {% if user.is_authenticated and user.avatar %}
+                        <img src="{{ user.avatar.url }}" alt="Avatar" class="avatar-small">
+                    {% else %}
+                        <i class="bi bi-person-circle"></i>
+                    {% endif %}
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer>
+        <p>© 2025 Дальняя зона. Все права защищены.</p>
+    </footer>
+
+    {% block script %}
+    {% endblock %}
+</body>
+</html>

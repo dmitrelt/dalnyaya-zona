@@ -1,0 +1,77 @@
+:root {
+    --primary-color: #68ffeb; /* Цвет из твоего проекта */
+    --secondary-color: #151d20; /* Темный фон из твоего проекта */
+    --text-color: #ffffff;
+    --accent-color: #77d4ff;
+}
+
+body {
+    font-family: 'Montserrat-Regular', sans-serif;
+    background: linear-gradient(to bottom, #d0f0ff, #bcffd8);
+}
+
+#header {
+    background: var(--secondary-color);
+    color: var(--text-color);
+    border-bottom: 2px solid var(--primary-color);
+}
+
+#site-name a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-family: 'BtflFont', sans-serif;
+    font-size: 1.5rem;
+}
+
+.module h2, .module caption, .inline-group h2 {
+    background: var(--secondary-color);
+    color: var(--text-color);
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.submit-row input {
+    background: var(--primary-color);
+    color: var(--secondary-color);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: 'Montserrat-Bold', sans-serif;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.submit-row input:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(104, 255, 235, 0.3);
+}
+
+.object-tools a, .breadcrumbs a {
+    color: var(--accent-color);
+}
+
+.object-tools a:hover, .breadcrumbs a:hover {
+    text-decoration: underline;
+}
+
+table {
+    background: var(--secondary-color);
+    color: var(--text-color);
+    border-radius: 8px;
+}
+
+th, td {
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+th {
+    background: var(--secondary-color);
+    color: var(--primary-color);
+}
+
+tr.row1, tr.row2 {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+tr.row1:hover, tr.row2:hover {
+    background: rgba(104, 255, 235, 0.1);
+}

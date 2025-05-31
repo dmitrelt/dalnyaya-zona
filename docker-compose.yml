@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+ farzone:
+   build:
+     context: .
+     dockerfile: Dockerfile.farzone
+   environment:
+     - DEBUG=${DEBUG:-True}
+     - ALLOWED_HOSTS=${ALLOWED_HOSTS:-localhost,127.0.0.1}
+   volumes:
+     - ./farzone:/app
+     - ./farzone/staticfiles:/app/staticfiles
+     - ./farzone/media:/app/media
+   depends_on:
+     - redis
+   networks:
+     - ttforum-network
+
+ notifier:
+   build:
+     context: .
+     dockerfile: Dockerfile.notifier
+   volumes:
+     - ./telegram-notifier:/app
+   depends_on:
+     - redis
+   networks:
+     - ttforum-network
+
+ redis:
+   image: redis:7
+   networks:
+     - ttforum-network
+
+ nginx:
+   image: nginx:latest
+   ports:
+     - "80:80"
+   volumes:
+     - ./nginx.conf:/etc/nginx/conf.d/default.conf
+     - ./farzone/staticfiles:/app/staticfiles
+     - ./farzone/media:/app/media
+   depends_on:
+     - farzone
+   networks:
+     - ttforum-network
+
+networks:
+ ttforum-network:
+   driver: bridge
