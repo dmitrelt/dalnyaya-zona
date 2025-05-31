@@ -1,21 +1,23 @@
 FROM python:3.11-slim
 
-   WORKDIR /app
+WORKDIR /app
 
-   RUN apt-get update && apt-get install -y \
-       gcc \
-       python3-dev \
-       libjpeg-dev \
-       zlib1g-dev \
-       && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y \
+    libjpeg-dev \
+    zlib1g-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-   COPY farzone/requirements.txt .
-   RUN pip install --no-cache-dir -r requirements.txt
+RUN useradd -m appuser
 
-   COPY farzone/ .
+COPY farzone/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-   RUN python manage.py collectstatic --noinput
+COPY farzone/ .
 
-   EXPOSE 8000
+RUN python manage.py collectstatic --noinput
 
-   CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "farzone.asgi:application"]
+USER appuser
+
+EXPOSE 8000
+
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "farzone.wsgi:application"]

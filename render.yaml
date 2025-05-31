@@ -1,0 +1,49 @@
+services:
+  - type: web
+    name: farzone
+    env: docker
+    dockerfilePath: ./Dockerfile.farzone
+    plan: free
+    envVars:
+      - key: DEBUG
+        value: False
+      - key: ALLOWED_HOSTS
+        value: "*.onrender.com,localhost,127.0.0.1"
+      - key: SECRET_KEY
+        sync: false
+      - key: SQLITE_DB_PATH
+        value: /data/db.sqlite3
+      - key: MEDIA_ROOT
+        value: /data/media
+      - key: REDIS_HOST
+        value: redis
+      - key: NOTIFIER_URL
+        value: https://notifier-web-service.onrender.com/notifications/
+      - key: NOTIFIER_API_KEY
+        sync: false
+      - key: YANDEX_MAPS_API_KEY
+        sync: false
+    disks:
+      - name: data
+        mountPath: /data
+        sizeGB: 1
+    buildCommand: ./build.sh
+    startCommand: gunicorn --bind 0.0.0.0:8000 farzone.wsgi:application
+
+  - type: web
+    name: Notifier
+    env: docker
+    dockerfilePath: ./Dockerfile.notifier
+    plan: free
+    envVars:
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_CHAT_ID
+        sync: false
+      - key: NOTIFIER_API_KEY
+        sync: false
+
+  - type: redis
+    name: redis
+    ipAllowList: []
+    plan: free

@@ -1,18 +1,16 @@
-# Используем официальный образ Python
 FROM python:3.11-slim
 
-# Устанавливаем рабочую директорию
 WORKDIR /app
 
-# Копируем зависимости
-COPY telegram-notifier/requirements.txt .
+RUN useradd -m appuser
+
+COPY ./telegram-notifier/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Копируем весь проект telegram-notifier
-COPY telegram-notifier/ .
+COPY ./telegram-notifier/ .
 
-# Открываем порт для FastAPI
-EXPOSE 8001
+USER appuser
 
-# Запускаем Uvicorn для FastAPI
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001"]
+EXPOSE 8000
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
