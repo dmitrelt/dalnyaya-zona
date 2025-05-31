@@ -8,7 +8,7 @@ services:
       - key: DEBUG
         value: False
       - key: ALLOWED_HOSTS
-        value: "*.onrender.com,localhost,127.0.0.1"
+        value: "*.onrender.com,localhost,127.0.0.1,farzone.onrender.com"
       - key: SECRET_KEY
         sync: false
       - key: YANDEX_MAPS_API_KEY
@@ -19,7 +19,7 @@ services:
         sync: false
       - key: REDIS_URL
         value: redis://redis:6379/0
-    buildCommand: python manage.py migrate
+    buildCommand: python manage.py collectstatic --noinput && python manage.py migrate
 
   - type: web
     name: notifier

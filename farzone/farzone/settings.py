@@ -1,17 +1,16 @@
 import os
-from django.conf import settings
 from pathlib import Path
 from dotenv import load_dotenv
 
-# Загружаем .env из корневой папки проекта
+# Load .env from the project root
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '..', '.env'))
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-sglccir=bd5)4v63irf^*zaq_&89=!br&xiu^068-cz#izy^!)')
-DEBUG = os.environ.get('DEBUG', 'False') == 'true'
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-# Парсим ALLOWED_HOSTS
+# Parse ALLOWED_HOSTS
 allowed_hosts = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1')
 ALLOWED_HOSTS = [host.strip() for host in allowed_hosts.split(',') if host.strip()]
 if 'farzone.onrender.com' not in ALLOWED_HOSTS:
@@ -82,11 +81,19 @@ TIME_ZONE = 'Europe/Moscow'
 USE_I18N = True
 USE_TZ = True
 
-# Статические файлы
+# Static files
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+    os.path.join(BASE_DIR, 'forum', 'static'),
+]
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+]
 
+# Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 

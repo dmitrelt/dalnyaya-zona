@@ -2,7 +2,7 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Установка зависимостей
+# Install dependencies
 RUN apt-get update && apt-get install -y \
     gcc \
     python3-dev \
@@ -13,10 +13,14 @@ RUN apt-get update && apt-get install -y \
 COPY farzone/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Copy the entire farzone directory
 COPY farzone/ .
 
-# Сбор статических файлов
+# Set environment variables for collectstatic
 ENV DJANGO_SETTINGS_MODULE=farzone.settings
+ENV PYTHONUNBUFFERED=1
+
+# Collect static files
 RUN python manage.py collectstatic --noinput
 
 EXPOSE 8000
