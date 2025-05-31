@@ -19,7 +19,9 @@ services:
         sync: false
       - key: REDIS_URL
         value: redis://redis:6379/0
-    buildCommand: python manage.py collectstatic --noinput && python manage.py migrate
+      - key: DJANGO_SETTINGS_MODULE
+        value: farzone.settings
+    buildCommand: python manage.py collectstatic --noinput --verbosity 2 && python manage.py migrate
 
   - type: web
     name: notifier

@@ -16,12 +16,17 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the entire farzone directory
 COPY farzone/ .
 
-# Set environment variables for collectstatic
+# Set environment variables
 ENV DJANGO_SETTINGS_MODULE=farzone.settings
 ENV PYTHONUNBUFFERED=1
+ENV DEBUG=False
 
-# Collect static files
-RUN python manage.py collectstatic --noinput
+# Debug static files
+RUN echo "Listing static files before collectstatic:" && \
+    find /app -type f -path "*/static/*" && \
+    python manage.py collectstatic --noinput --verbosity 2 && \
+    echo "Listing staticfiles after collectstatic:" && \
+    find /app/staticfiles -type f
 
 EXPOSE 8000
 
