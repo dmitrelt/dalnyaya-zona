@@ -1,20 +1,19 @@
 import os
+from django.conf import settings
 from pathlib import Path
 from dotenv import load_dotenv
 
-# Load .env from the project root
+# Загружаем .env из корневой папки проекта
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '..', '.env'))
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get('SECRET_KEY', 'your-default-secret-key')
-DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-sglccir=bd5)4v63irf^*zaq_&89=!br&xiu^068-cz#izy^!)')
+DEBUG = os.environ.get('DEBUG', 'False') == 'true'
 
-# Parse ALLOWED_HOSTS from environment variable, split by commas, and strip whitespace
+# Парсим ALLOWED_HOSTS
 allowed_hosts = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1')
 ALLOWED_HOSTS = [host.strip() for host in allowed_hosts.split(',') if host.strip()]
-
-# Ensure farzone.onrender.com is included
 if 'farzone.onrender.com' not in ALLOWED_HOSTS:
     ALLOWED_HOSTS.append('farzone.onrender.com')
 
@@ -83,7 +82,8 @@ TIME_ZONE = 'Europe/Moscow'
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = 'static/'
+# Статические файлы
+STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
