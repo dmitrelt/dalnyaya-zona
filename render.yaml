@@ -11,27 +11,23 @@ services:
         value: "*.onrender.com,localhost,127.0.0.1"
       - key: SECRET_KEY
         sync: false
-      - key: SQLITE_DB_PATH
-        value: /data/db.sqlite3
-      - key: MEDIA_ROOT
-        value: /data/media
-      - key: REDIS_HOST
-        value: redis
-      - key: NOTIFIER_URL
-        value: https://notifier-web-service.onrender.com/notifications/
-      - key: NOTIFIER_API_KEY
-        sync: false
       - key: YANDEX_MAPS_API_KEY
         sync: false
-    disks:
-      - name: data
-        mountPath: /data
-        sizeGB: 1
-    buildCommand: ./build.sh
-    startCommand: gunicorn --bind 0.0.0.0:8000 farzone.wsgi:application
+      - key: NOTIFIER_URL
+        value: http://notifier:8001/notifications/
+      - key: NOTIFIER_API_KEY
+        sync: false
+      - key: REDIS_URL
+        value: redis://redis:6379/0
+    disk:
+      name: sqlite-disk
+      mountPath: /app/db
+      sizeGB: 1
+    buildCommand: python manage.py migrate
+    startCommand: daphne -b 0.0.0.0 -p 8000 farzone.asgi:application
 
   - type: web
-    name: Notifier
+    name: notifier
     env: docker
     dockerfilePath: ./Dockerfile.notifier
     plan: free
@@ -40,8 +36,7 @@ services:
         sync: false
       - key: TELEGRAM_CHAT_ID
         sync: false
-      - key: NOTIFIER_API_KEY
-        sync: false
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port 8001
 
   - type: redis
     name: redis

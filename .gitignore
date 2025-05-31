@@ -1,6 +1,6 @@
 # Python
-*.pyc
 __pycache__/
+*.py[cod]
 *.pyo
 *.pyd
 .Python
@@ -9,64 +9,38 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-*.egg-info/
-*.egg
+*.env
+*.env.*
+.env
 
 # Django
 *.log
 *.pot
-*.mo
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
-media/
+*.pyc
+migrations/
+*.sqlite3
+*.sqlite3-journal
 staticfiles/
+media/
 
-# Environment variables
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+# Docker
+Dockerfile*
+docker-compose*.yml
+docker-compose.override.yml
 
-# IDEs and editors
-.vscode/
+# IDE and editor files
 .idea/
+.vscode/
 *.sublime-project
 *.sublime-workspace
 
-# OS generated files
+# System files
 .DS_Store
 Thumbs.db
 
-# Docker
-*.dockerignore
-Dockerfile.*
-docker-compose.*.yml
-
-# Render
-render.yaml
-
-# Testing
-coverage/
-.htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.pytest_cache/
-
-# Build artifacts
-dist/
-build/
-*.tar.gz
-
-# Miscellaneous
+# Other
 *.bak
 *.swp
+*.swo
 *~
+*.lock
