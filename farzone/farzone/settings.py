@@ -2,14 +2,21 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-# Загружаем .env из корневой папки проекта
+# Load .env from the project root
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '..', '.env'))
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-sglccir=bd5)4v63irf^*zaq_&89=!br&xiu^068-cz#izy^!)')
+SECRET_KEY = os.environ.get('SECRET_KEY', 'your-default-secret-key')
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+
+# Parse ALLOWED_HOSTS from environment variable, split by commas, and strip whitespace
+allowed_hosts = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1')
+ALLOWED_HOSTS = [host.strip() for host in allowed_hosts.split(',') if host.strip()]
+
+# Ensure farzone.onrender.com is included
+if 'farzone.onrender.com' not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append('farzone.onrender.com')
 
 INSTALLED_APPS = [
     'daphne',
