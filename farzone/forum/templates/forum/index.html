@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load forum_tags%}
+{% load forum_tags %}
 
 {% block content %}
 <div class="forum-main">
@@ -10,20 +10,22 @@
             <li class="category-item {% if category == active_category %}active{% endif %}">
                 <a href="{{ category.get_absolute_url }}" class="category-link">{{ category.title }}</a>
             </li>
+            {% empty %}
+            <li class="category-item">No categories available</li>
             {% endfor %}
         </ul>
     </div>
 
     <div class="posts-main">
         <div class="posts-header">
-            <h2 class="category-title">{{ active_category.title }}</h2>
-            {% if user.is_authenticated %}
+            <h2 class="category-title">{{ active_category.title|default:"No Category Selected" }}</h2>
+            {% if user.is_authenticated and active_category %}
             <button class="add-button">
-                <a href="{% url 'post_create' slug=active_category.slug %}">+</a>
+                <a href="{% url 'forum:post_create' slug=active_category.slug %}">+</a>
             </button>
-            {% else %}
+            {% elif active_category %}
             <button class="add-button">
-                <a href="{% url 'users:login' %}?next={% url 'post_create' slug=active_category.slug %}">+</a>
+                <a href="{% url 'users:login' %}?next={% url 'forum:post_create' slug=active_category.slug %}">+</a>
             </button>
             {% endif %}
         </div>
@@ -73,6 +75,8 @@
                 </div>
             </li>
             {% endif %}
+            {% empty %}
+            <li>No posts available</li>
             {% endfor %}
         </ul>
     </div>

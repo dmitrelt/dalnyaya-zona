@@ -11,6 +11,12 @@ services:
         value: False
       - key: ALLOWED_HOSTS
         value: localhost,127.0.0.1,*.onrender.com
+      - key: NOTIFIER_URL
+        value: https://notifier.onrender.com
+      - key: NOTIFIER_API_KEY
+        value: secret-key
+      - key: YANDEX_MAPS_API_KEY
+        value: 0da8c4de-790a-498b-911e-a8330a5b0a70
     disk:
       - name: sqlite-disk
         mountPath: /app/db/db.sqlite3
@@ -30,3 +36,5 @@ services:
     envVars:
       - key: TELEGRAM_BOT_TOKEN
         value: 7480135927:AAGwkJlU6iF2aNkAh2gfNtzwLNRwCca5kys
+      - key: TELEGRAM_CHAT_ID
+        value: 1175923220

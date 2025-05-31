@@ -11,7 +11,6 @@ from rest_framework import generics
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from django.views import View
 
-
 class WelcomeView(TemplateView):
     template_name = 'forum/welcome.html'
 
@@ -32,12 +31,10 @@ class WelcomeView(TemplateView):
         context['form'] = form
         return self.render_to_response(context)
 
-
 class CategoryListAPIView(generics.ListAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
-
 
 class PostListCreateAPIView(generics.ListCreateAPIView):
     queryset = Post.objects.all()
@@ -46,7 +43,6 @@ class PostListCreateAPIView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
-
 
 class ForumHomeView(ListView):
     model = Category
@@ -57,8 +53,8 @@ class ForumHomeView(ListView):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Форум по настольному теннису'
         first_category = self.object_list.first()
+        context['active_category'] = first_category
         if first_category:
-            context['active_category'] = first_category
             posts = first_category.posts.all()
             if self.request.user.is_authenticated:
                 liked_post_ids = set(PostLike.objects.filter(
@@ -81,8 +77,9 @@ class ForumHomeView(ListView):
                     }
                     for post in posts
                 ]
+        else:
+            context['posts'] = []
         return context
-
 
 class CategoryPostsView(ListView):
     model = Post
@@ -122,7 +119,6 @@ class CategoryPostsView(ListView):
             ]
         return context
 
-
 class PostDetailView(DetailView):
     model = Post
     template_name = 'forum/post-detail.html'
@@ -153,7 +149,6 @@ class PostDetailView(DetailView):
         context['post_likes_count'] = self.object.likes.count()
         return context
 
-
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
     form_class = PostForm
@@ -169,7 +164,6 @@ class PostCreateView(LoginRequiredMixin, CreateView):
             'category_slug': self.object.category.slug,
             'post_slug': self.object.slug
         })
-
 
 class CommentCreateView(LoginRequiredMixin, CreateView):
     model = Comment
@@ -194,7 +188,6 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
             'category_slug': self.kwargs['category_slug'],
             'post_slug': self.kwargs['post_slug']
         }) + '#comments'
-
 
 class PostLikeView(LoginRequiredMixin, View):
     def post(self, request, category_slug, post_slug):
