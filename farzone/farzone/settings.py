@@ -1,20 +1,11 @@
-"""
-Django settings for farzone project.
-"""
 import os
 from pathlib import Path
-
-from dotenv import load_dotenv
-
-
-load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '..', '.env'))
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-sglccir=bd5)4v63irf^*zaq_&89=!br&xiu^068-cz#izy^!)')
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-# Parse ALLOWED_HOSTS
 allowed_hosts = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1')
 ALLOWED_HOSTS = [host.strip() for host in allowed_hosts.split(',') if host.strip()]
 if 'farzone.onrender.com' not in ALLOWED_HOSTS:
@@ -39,6 +30,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Добавлен WhiteNoise
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -71,7 +63,7 @@ ASGI_APPLICATION = 'farzone.asgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': BASE_DIR / 'db' / 'db.sqlite3',  # Исправлен путь
     }
 }
 
@@ -87,13 +79,13 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = BASE_DIR / 'media'
 
 AUTH_USER_MODEL = 'users.User'
 
@@ -107,7 +99,6 @@ CACHES = {
         'LOCATION': 'redis://redis:6379/1',
     }
 }
-
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -127,6 +118,7 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
 YANDEX_MAPS_API_KEY = os.environ.get('YANDEX_MAPS_API_KEY')
 NOTIFIER_URL = os.environ.get('NOTIFIER_URL')
 NOTIFIER_API_KEY = os.environ.get('NOTIFIER_API_KEY')

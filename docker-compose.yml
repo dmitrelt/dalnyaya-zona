@@ -9,8 +9,10 @@ services:
       - DEBUG=False
       - ALLOWED_HOSTS=localhost,127.0.0.1,*.onrender.com
       - SECRET_KEY=${SECRET_KEY}
+      - YANDEX_MAPS_API_KEY=${YANDEX_MAPS_API_KEY}
+      - NOTIFIER_URL=${NOTIFIER_URL}
+      - NOTIFIER_API_KEY=${NOTIFIER_API_KEY}
     volumes:
-      - ./farzone:/app
       - staticfiles:/app/staticfiles
       - media:/app/media
       - db:/app/db
