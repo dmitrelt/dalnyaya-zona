@@ -63,7 +63,7 @@ ASGI_APPLICATION = 'farzone.asgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db' / 'db.sqlite3',  # Исправлен путь
+        'NAME': BASE_DIR / 'db.sqlite3',  # Исправлен путь
     }
 }
 
