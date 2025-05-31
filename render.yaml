@@ -2,41 +2,31 @@ services:
   - type: web
     name: farzone
     env: docker
-    dockerfilePath: ./Dockerfile.farzone
+    dockerComposeFile: docker-compose.yml
     plan: free
     envVars:
+      - key: SECRET_KEY
+        generateValue: true
       - key: DEBUG
         value: False
       - key: ALLOWED_HOSTS
-        value: "*.onrender.com,localhost,127.0.0.1,farzone.onrender.com"
-      - key: SECRET_KEY
-        sync: false
-      - key: YANDEX_MAPS_API_KEY
-        sync: false
-      - key: NOTIFIER_URL
-        value: http://notifier:8001/notifications/
-      - key: NOTIFIER_API_KEY
-        sync: false
-      - key: REDIS_URL
-        value: redis://redis:6379/0
-      - key: DJANGO_SETTINGS_MODULE
-        value: farzone.settings
-    buildCommand: python manage.py collectstatic --noinput --verbosity 2 && python manage.py migrate
+        value: localhost,127.0.0.1,*.onrender.com
+    disk:
+      - name: sqlite-disk
+        mountPath: /app/db.sqlite3
+        sizeGB: 1
+      - name: staticfiles-disk
+        mountPath: /app/staticfiles
+        sizeGB: 1
+      - name: media-disk
+        mountPath: /app/media
+        sizeGB: 1
 
   - type: web
     name: notifier
     env: docker
-    dockerfilePath: ./Dockerfile.notifier
+    dockerComposeFile: docker-compose.yml
     plan: free
     envVars:
       - key: TELEGRAM_BOT_TOKEN
-        sync: false
-      - key: TELEGRAM_CHAT_ID
-        sync: false
-      - key: NOTIFIER_API_KEY
-        sync: false
-
-  - type: redis
-    name: redis
-    ipAllowList: []
-    plan: free
+        value: 7480135927:AAGwkJlU6iF2aNkAh2gfNtzwLNRwCca5kys

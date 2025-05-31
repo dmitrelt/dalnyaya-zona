@@ -2,7 +2,6 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install dependencies
 RUN apt-get update && apt-get install -y \
     gcc \
     python3-dev \
@@ -12,22 +11,16 @@ RUN apt-get update && apt-get install -y \
 
 COPY farzone/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install whitenoise==6.7.0
 
-# Copy the entire farzone directory
 COPY farzone/ .
 
-# Set environment variables
-ENV DJANGO_SETTINGS_MODULE=farzone.settings
-ENV PYTHONUNBUFFERED=1
-ENV DEBUG=False
+RUN python manage.py collectstatic --noinput
 
-# Debug static files
-RUN echo "Listing static files before collectstatic:" && \
-    find /app -type f -path "*/static/*" && \
-    python manage.py collectstatic --noinput --verbosity 2 && \
-    echo "Listing staticfiles after collectstatic:" && \
-    find /app/staticfiles -type f
+# Установка прав для статических и медиафайлов
+RUN mkdir -p /app/staticfiles /app/media
+RUN chmod -R 755 /app/staticfiles /app/media
 
 EXPOSE 8000
 
-CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "farzone.asgi:application"]
+CMD ["sh", "-c", "python manage.py migrate && daphne -b 0.0.0.0 -p 8000 farzone.asgi:application"]
