@@ -15,12 +15,11 @@ RUN pip install whitenoise==6.7.0
 
 COPY farzone/ .
 
-RUN python manage.py collectstatic --noinput
-
-# Установка прав для статических и медиафайлов
-RUN mkdir -p /app/staticfiles /app/media
-RUN chmod -R 755 /app/staticfiles /app/media
+# Создание директорий и установка прав
+RUN mkdir -p /app/staticfiles /app/media /app/db
+RUN chmod -R 755 /app/staticfiles /app/media /app/db
+RUN python manage.py collectstatic --noinput --clear
 
 EXPOSE 8000
 
-CMD ["sh", "-c", "python manage.py migrate && daphne -b 0.0.0.0 -p 8000 farzone.asgi:application"]
+CMD ["sh", "-c", "python manage.py migrate && python manage.py collectstatic --noinput && daphne -b 0.0.0.0 -p 8000 farzone.asgi:application"]

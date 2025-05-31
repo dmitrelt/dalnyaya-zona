@@ -11,9 +11,9 @@ services:
       - SECRET_KEY=${SECRET_KEY}
     volumes:
       - ./farzone:/app
-      - ./farzone/staticfiles:/app/staticfiles
-      - ./farzone/media:/app/media
-      - ./farzone/db.sqlite3:/app/db.sqlite3
+      - staticfiles:/app/staticfiles
+      - media:/app/media
+      - db:/app/db
     depends_on:
       - redis
     networks:
@@ -41,9 +41,9 @@ services:
       - "80:80"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
-      - ./farzone/staticfiles:/app/staticfiles
-      - ./farzone/media:/app/media
-      - ./farzone/db.sqlite3:/app/db.sqlite3
+      - staticfiles:/app/staticfiles
+      - media:/app/media
+      - db:/app/db
     depends_on:
       - farzone
     networks:

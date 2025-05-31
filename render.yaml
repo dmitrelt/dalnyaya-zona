@@ -13,7 +13,7 @@ services:
         value: localhost,127.0.0.1,*.onrender.com
     disk:
       - name: sqlite-disk
-        mountPath: /app/db.sqlite3
+        mountPath: /app/db/db.sqlite3
         sizeGB: 1
       - name: staticfiles-disk
         mountPath: /app/staticfiles
