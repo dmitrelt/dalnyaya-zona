@@ -1,3 +1,4 @@
+# farzone/settings.py
 import os
 from pathlib import Path
 
@@ -30,7 +31,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Добавлен WhiteNoise
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -63,7 +64,7 @@ ASGI_APPLICATION = 'farzone.asgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db' / 'db.sqlite3',  # Исправлен путь
+        'NAME': BASE_DIR / 'db' / 'db.sqlite3',
     }
 }
 
@@ -96,7 +97,7 @@ LOGOUT_REDIRECT_URL = 'forum_home'
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': 'redis://redis:6379/1',
+        'LOCATION': os.getenv('REDIS_URL', 'redis://localhost:6379/1'),  # Обновлено
     }
 }
 
@@ -110,7 +111,7 @@ REST_FRAMEWORK = {
     ],
 }
 
-REDIS_URL = os.getenv('REDIS_URL', 'redis://redis:6379')
+REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379')  # Обновлено
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',

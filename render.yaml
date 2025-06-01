@@ -2,7 +2,7 @@ services:
   - type: web
     name: farzone
     env: docker
-    dockerComposeFile: docker-compose.yml
+    dockerfilePath: ./Dockerfile.farzone
     plan: free
     envVars:
       - key: SECRET_KEY
@@ -10,21 +10,21 @@ services:
       - key: DEBUG
         value: False
       - key: ALLOWED_HOSTS
-        value: localhost,127.0.0.1,*.onrender.com
+        value: localhost,127.0.0.1,farzone.onrender.com
       - key: NOTIFIER_URL
         value: https://notifier.onrender.com
       - key: NOTIFIER_API_KEY
-        value: secret-key
+        sync: false
       - key: YANDEX_MAPS_API_KEY
         value: 0da8c4de-790a-498b-911e-a8330a5b0a70
       - key: REDIS_URL
         fromService:
-        type: redis
-        name: farzone_redis
-        property: connectionString
+          type: redis
+          name: farzone_redis
+          property: connectionString
     disk:
       - name: sqlite-disk
-        mountPath: /app/db/db.sqlite3
+        mountPath: /app/db
         sizeGB: 1
       - name: staticfiles-disk
         mountPath: /app/staticfiles
@@ -32,20 +32,19 @@ services:
       - name: media-disk
         mountPath: /app/media
         sizeGB: 1
-
   - type: redis
     name: farzone_redis
     plan: free
     maxmemoryPolicy: allkeys-lru
-
   - type: web
     name: notifier
     env: docker
-    dockerComposeFile: docker-compose.yml
+    dockerfilePath: ./Dockerfile.notifier
     plan: free
     envVars:
+      - key: API_KEY
+        sync: false
       - key: TELEGRAM_BOT_TOKEN
-        value: 7480135927:AAGwkJlU6iF2aNkAh2gfNtzwLNRwCca5kys
+        sync: false
       - key: TELEGRAM_CHAT_ID
-        value: 1175923220
-
+        sync: false

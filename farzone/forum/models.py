@@ -158,22 +158,24 @@ class ContactMessage(models.Model):
         return f'Сообщение от {self.name} ({self.email})'
 
     def save(self, *args, **kwargs):
-        is_new = self.pk is None
         super().save(*args, **kwargs)
-        if is_new:
+        if not self.is_notified:
             try:
-                headers = {'X-API-Key': settings.NOTIFIER_API_KEY}
                 response = requests.post(
                     f"{settings.NOTIFIER_URL.rstrip('/')}/notifications/",
-                    json={
-                        "name": self.name,
-                        "email": self.email,
-                        "message": self.message
+                    headers={
+                        'X-API-Key': settings.NOTIFIER_API_KEY,
+                        'Content-Type': 'application/json',
                     },
-                    headers=headers,
-                    timeout=5
+                    json={
+                        'name': self.name,
+                        'email': self.email,
+                        'message': self.message,
+                    },
+                    timeout=5,
                 )
                 response.raise_for_status()
-                logger.info(f"Notification sent to Telegram: {self.name}, {self.email}")
+                self.is_notified = True
+                super().save(update_fields=['is_notified'])
             except requests.RequestException as e:
                 logger.error(f"Failed to send notification to Telegram: {str(e)}")
