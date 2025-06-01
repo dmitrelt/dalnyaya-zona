@@ -17,6 +17,11 @@ services:
         value: secret-key
       - key: YANDEX_MAPS_API_KEY
         value: 0da8c4de-790a-498b-911e-a8330a5b0a70
+      - key: REDIS_URL
+        fromService:
+        type: redis
+        name: farzone_redis
+        property: connectionString
     disk:
       - name: sqlite-disk
         mountPath: /app/db/db.sqlite3
@@ -28,6 +33,11 @@ services:
         mountPath: /app/media
         sizeGB: 1
 
+  - type: redis
+    name: farzone_redis
+    plan: free
+    maxmemoryPolicy: allkeys-lru
+
   - type: web
     name: notifier
     env: docker
@@ -38,3 +48,4 @@ services:
         value: 7480135927:AAGwkJlU6iF2aNkAh2gfNtzwLNRwCca5kys
       - key: TELEGRAM_CHAT_ID
         value: 1175923220
+

@@ -110,11 +110,12 @@ REST_FRAMEWORK = {
     ],
 }
 
+REDIS_URL = os.getenv('REDIS_URL', 'redis://redis:6379')
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            'hosts': [('redis', 6379)],
+            'hosts': [REDIS_URL],
         },
     },
 }
