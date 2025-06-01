@@ -1,4 +1,3 @@
-# farzone/settings.py
 import os
 from pathlib import Path
 
@@ -81,7 +80,7 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
+STATICFILES_DIRS = []  # Убрано, так как папка static не существует
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
@@ -97,7 +96,7 @@ LOGOUT_REDIRECT_URL = 'forum_home'
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': os.getenv('REDIS_URL', 'redis://localhost:6379/1'),  # Обновлено
+        'LOCATION': os.getenv('REDIS_URL'),
     }
 }
 
@@ -111,7 +110,7 @@ REST_FRAMEWORK = {
     ],
 }
 
-REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379')  # Обновлено
+REDIS_URL = os.getenv('REDIS_URL')
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',

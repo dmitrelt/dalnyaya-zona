@@ -159,23 +159,22 @@ class ContactMessage(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        if not self.is_notified:
-            try:
-                response = requests.post(
-                    f"{settings.NOTIFIER_URL.rstrip('/')}/notifications/",
-                    headers={
-                        'X-API-Key': settings.NOTIFIER_API_KEY,
-                        'Content-Type': 'application/json',
-                    },
-                    json={
-                        'name': self.name,
-                        'email': self.email,
-                        'message': self.message,
-                    },
-                    timeout=5,
-                )
-                response.raise_for_status()
-                self.is_notified = True
-                super().save(update_fields=['is_notified'])
-            except requests.RequestException as e:
-                logger.error(f"Failed to send notification to Telegram: {str(e)}")
+        try:
+            response = requests.post(
+                f"{settings.NOTIFIER_URL.rstrip('/')}/notifications/",
+                headers={
+                    'X-API-Key': settings.NOTIFIER_API_KEY,
+                    'Content-Type': 'application/json',
+                },
+                json={
+                    'name': self.name,
+                    'email': self.email,
+                    'message': self.message,
+                },
+                timeout=5,
+            )
+            response.raise_for_status()
+            self.is_notified = True
+            super().save(update_fields=['is_notified'])
+        except requests.RequestException as e:
+            logger.error(f"Failed to send notification to Telegram: {str(e)}")

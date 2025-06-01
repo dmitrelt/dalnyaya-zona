@@ -5,19 +5,23 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.farzone
+    ports:
+      - "8000:8000"
     environment:
-      - DEBUG=False
-      - ALLOWED_HOSTS=localhost,127.0.0.1,*.onrender.com
+      - DEBUG=True
+      - ALLOWED_HOSTS=localhost,127.0.0.1
       - SECRET_KEY=${SECRET_KEY}
       - YANDEX_MAPS_API_KEY=${YANDEX_MAPS_API_KEY}
-      - NOTIFIER_URL=${NOTIFIER_URL}
-      - NOTIFIER_API_KEY=${NOTIFIER_API_KEY}
+      - NOTIFIER_URL=http://notifier:8001
+      - NOTIFIER_API_KEY=secret-key
+      - REDIS_URL=redis://redis:6379
     volumes:
-      - staticfiles:/app/staticfiles
-      - media:/app/media
-      - db:/app/db
+      - ./db:/app/db
+      - ./media:/app/media
+      - ./staticfiles:/app/staticfiles
     depends_on:
       - redis
+      - notifier
     networks:
       - ttforum-network
 
@@ -25,29 +29,19 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.notifier
-    volumes:
-      - ./telegram-notifier:/app
-    depends_on:
-      - redis
+    ports:
+      - "8001:8001"
+    environment:
+      - API_KEY=secret-key
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
     networks:
       - ttforum-network
 
   redis:
     image: redis:7
-    networks:
-      - ttforum-network
-
-  nginx:
-    image: nginx:latest
     ports:
-      - "80:80"
-    volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf
-      - staticfiles:/app/staticfiles
-      - media:/app/media
-      - db:/app/db
-    depends_on:
-      - farzone
+      - "6379:6379"
     networks:
       - ttforum-network
 
