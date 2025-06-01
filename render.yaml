@@ -19,9 +19,9 @@ services:
         value: 0da8c4de-790a-498b-911e-a8330a5b0a70
       - key: REDIS_URL
         fromService:
-        type: redis
-        name: farzone_redis
-        property: connectionString
+          type: redis
+          name: farzone_redis
+          property: connectionString
     disk:
       - name: sqlite-disk
         mountPath: /app/db/db.sqlite3
@@ -32,6 +32,8 @@ services:
       - name: media-disk
         mountPath: /app/media
         sizeGB: 1
+    healthCheckPath: /health/
+    timeoutSeconds: 60
 
   - type: redis
     name: farzone_redis
@@ -48,4 +50,7 @@ services:
         value: 7480135927:AAGwkJlU6iF2aNkAh2gfNtzwLNRwCca5kys
       - key: TELEGRAM_CHAT_ID
         value: 1175923220
-
+      - key: NOTIFIER_API_KEY
+        value: secret-key
+    healthCheckPath: /health/
+    timeoutSeconds: 60

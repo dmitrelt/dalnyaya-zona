@@ -10,10 +10,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Создаём WebSocket-соединение
     const postSocket = new WebSocket(
-        `ws://${window.location.host}/ws/post/${postId}/`
+        `wss://${window.location.host}/ws/post/${postId}/`
     );
 
+    postSocket.onopen = function () {
+        console.log(`WebSocket connected for post ${postId}`);
+    };
+
     postSocket.onmessage = function (e) {
+        console.log('WebSocket message received:', e.data);
         const data = JSON.parse(e.data);
         if (data.type === 'like_update') {
             const message = data.message;
@@ -30,11 +35,17 @@ document.addEventListener('DOMContentLoaded', function () {
                     likeIcon.classList.add('bi-heart');
                     likeIcon.dataset.liked = 'false';
                 }
+            } else {
+                console.error(`Likes count element not found for post ${message.post_id}`);
             }
         }
     };
 
     postSocket.onclose = function (e) {
-        console.error('WebSocket for post closed unexpectedly');
+        console.error('WebSocket for post closed unexpectedly:', e);
+    };
+
+    postSocket.onerror = function (e) {
+        console.error('WebSocket error:', e);
     };
 });

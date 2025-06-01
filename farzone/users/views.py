@@ -5,22 +5,21 @@ from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import DetailView, UpdateView
 from rest_framework.views import APIView
-
 from forum.models import Post
 from .forms import RegisterForm, LoginForm, ProfileEditForm
 from .models import User
-
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
+import logging
 
+logger = logging.getLogger(__name__)
 
 class AuthAPIView(APIView):
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
-
         user = authenticate(username=username, password=password)
         if user:
             token, _ = Token.objects.get_or_create(user=user)
@@ -44,7 +43,6 @@ class RegisterView(View):
             return redirect('forum_home')
         return render(request, 'users/register.html', {'form': form})
 
-
 class LoginView(View):
     def get(self, request):
         form = LoginForm()
@@ -58,12 +56,10 @@ class LoginView(View):
             return redirect('forum_home')
         return render(request, 'users/login.html', {'form': form})
 
-
 class LogoutView(View):
     def get(self, request):
         logout(request)
         return redirect('forum_home')
-
 
 class ProfileView(LoginRequiredMixin, DetailView):
     model = User
@@ -76,9 +72,8 @@ class ProfileView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['posts'] = Post.objects.filter(author=self.object)
-        context['is_own_profile'] = True  # Указываем, что это профиль текущего пользователя
+        context['is_own_profile'] = True
         return context
-
 
 class ProfileEditView(LoginRequiredMixin, UpdateView):
     model = User
@@ -88,22 +83,15 @@ class ProfileEditView(LoginRequiredMixin, UpdateView):
     def get_object(self):
         return self.request.user
 
+    def form_valid(self, form):
+        try:
+            user = form.save()
+            logger.info(f"Profile updated for user {user.username}, avatar: {user.avatar}")
+            return super().form_valid(form)
+        except Exception as e:
+            logger.error(f"Error updating profile for {self.request.user.username}: {str(e)}")
+            form.add_error(None, "Failed to update profile")
+            return self.form_invalid(form)
+
     def get_success_url(self):
         return reverse_lazy('users:profile')
-
-
-class PublicProfileView(DetailView):
-    model = User
-    template_name = 'users/profile.html'
-    context_object_name = 'profile_user'
-    slug_field = 'username'
-    slug_url_kwarg = 'username'
-
-    def get_object(self):
-        return get_object_or_404(User, username=self.kwargs['username'])
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['posts'] = Post.objects.filter(author=self.object)
-        context['is_own_profile'] = (self.request.user == self.object)
-        return context

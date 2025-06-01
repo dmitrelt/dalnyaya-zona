@@ -96,7 +96,7 @@ LOGOUT_REDIRECT_URL = 'forum_home'
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': os.getenv('REDIS_URL'),
+        'LOCATION': os.getenv('REDIS_URL', 'redis://redis:6379/0'),
     }
 }
 
@@ -110,12 +110,14 @@ REST_FRAMEWORK = {
     ],
 }
 
-REDIS_URL = os.getenv('REDIS_URL')
+REDIS_URL = os.getenv('REDIS_URL', 'redis://redis:6379/0')
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
             'hosts': [REDIS_URL],
+            'capacity': 1500,
+            'expiry': 10,
         },
     },
 }
@@ -126,3 +128,10 @@ NOTIFIER_API_KEY = os.environ.get('NOTIFIER_API_KEY')
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 CSRF_TRUSTED_ORIGINS = ['https://*.onrender.com']
+
+# Настройки для image_cropping и easy_thumbnails
+THUMBNAIL_ALIASES = {
+    '': {
+        'avatar': {'size': (200, 200), 'crop': True},
+    },
+}

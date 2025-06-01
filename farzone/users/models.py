@@ -2,10 +2,9 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-
 def user_avatar_path(instance, filename):
-    return f'avatars/user_{instance.id}/{filename}'
-
+    user_id = instance.id if instance.id else 'temp'
+    return f'avatars/user_{user_id}/{filename}'
 
 class User(AbstractUser):
     email = models.EmailField(_('email address'), unique=True)

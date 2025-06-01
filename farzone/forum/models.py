@@ -148,6 +148,7 @@ class ContactMessage(models.Model):
     email = models.EmailField('Email')
     message = models.TextField('Сообщение')
     created_at = models.DateTimeField('Создано', auto_now_add=True)
+    is_notified = models.BooleanField('Отправлено в Telegram', default=False)
 
     class Meta:
         verbose_name = 'Сообщение обратной связи'
@@ -159,22 +160,24 @@ class ContactMessage(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        try:
-            response = requests.post(
-                f"{settings.NOTIFIER_URL.rstrip('/')}/notifications/",
-                headers={
-                    'X-API-Key': settings.NOTIFIER_API_KEY,
-                    'Content-Type': 'application/json',
-                },
-                json={
-                    'name': self.name,
-                    'email': self.email,
-                    'message': self.message,
-                },
-                timeout=5,
-            )
-            response.raise_for_status()
-            self.is_notified = True
-            super().save(update_fields=['is_notified'])
-        except requests.RequestException as e:
-            logger.error(f"Failed to send notification to Telegram: {str(e)}")
+        if not self.is_notified:
+            try:
+                response = requests.post(
+                    f"{settings.NOTIFIER_URL.rstrip('/')}/notifications/",
+                    headers={
+                        'X-API-Key': settings.NOTIFIER_API_KEY,
+                        'Content-Type': 'application/json',
+                    },
+                    json={
+                        'name': self.name,
+                        'email': self.email,
+                        'message': self.message,
+                    },
+                    timeout=10,
+                )
+                response.raise_for_status()
+                self.is_notified = True
+                super().save(update_fields=['is_notified'])
+                logger.info(f"Notification sent to Telegram for {self.name}, {self.email}")
+            except requests.RequestException as e:
+                logger.error(f"Failed to send notification to Telegram: {str(e)}, Response: {getattr(e.response, 'text', 'No response')}")
