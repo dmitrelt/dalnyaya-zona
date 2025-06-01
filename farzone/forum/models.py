@@ -41,8 +41,7 @@ class Category(models.Model):
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse('category_posts', kwargs={'slug': self.slug})
-
+        return reverse('forum:category_posts', kwargs={'slug': self.slug})
 
 class Post(models.Model):
     author = models.ForeignKey(
@@ -91,8 +90,7 @@ class Post(models.Model):
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse('post_detail', kwargs={'category_slug': self.category.slug, 'post_slug': self.slug})
-
+        return reverse('forum:post_detail', kwargs={'category_slug': self.category.slug, 'post_slug': self.slug})
 
 class Comment(models.Model):
     author = models.ForeignKey(
@@ -118,7 +116,6 @@ class Comment(models.Model):
 
     def __str__(self):
         return f'Комментарий от {self.author.username} к посту "{self.post.title}"'
-
 
 class PostLike(models.Model):
     user = models.ForeignKey(
@@ -146,7 +143,6 @@ class PostLike(models.Model):
     def __str__(self):
         return f'Лайк от {self.user.username} на пост "{self.post.title}"'
 
-
 class ContactMessage(models.Model):
     name = models.CharField('Имя', max_length=100)
     email = models.EmailField('Email')
@@ -162,14 +158,22 @@ class ContactMessage(models.Model):
         return f'Сообщение от {self.name} ({self.email})'
 
     def save(self, *args, **kwargs):
+        is_new = self.pk is None
         super().save(*args, **kwargs)
-        try:
-            response = requests.post(
-                settings.NOTIFIER_URL,
-                headers={"X-API-Key": settings.NOTIFIER_API_KEY},
-                json={"name": self.name, "email": self.email, "message": self.message}
-            )
-            response.raise_for_status()
-            logger.info(f"Notification sent to Telegram: {self.name}, {self.email}")
-        except requests.RequestException as e:
-            logger.error(f"Failed to send notification to Telegram: {str(e)}")
+        if is_new:
+            try:
+                headers = {'X-API-Key': settings.NOTIFIER_API_KEY}
+                response = requests.post(
+                    f"{settings.NOTIFIER_URL.rstrip('/')}/notifications/",
+                    json={
+                        "name": self.name,
+                        "email": self.email,
+                        "message": self.message
+                    },
+                    headers=headers,
+                    timeout=5
+                )
+                response.raise_for_status()
+                logger.info(f"Notification sent to Telegram: {self.name}, {self.email}")
+            except requests.RequestException as e:
+                logger.error(f"Failed to send notification to Telegram: {str(e)}")
