@@ -75,6 +75,23 @@ class ProfileView(LoginRequiredMixin, DetailView):
         context['is_own_profile'] = True
         return context
 
+
+class PublicProfileView(DetailView):
+    model = User
+    template_name = 'users/profile.html'
+    context_object_name = 'profile_user'
+    slug_field = 'username'
+    slug_url_kwarg = 'username'
+
+    def get_object(self):
+        return get_object_or_404(User, username=self.kwargs['username'])
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['posts'] = Post.objects.filter(author=self.object)
+        context['is_own_profile'] = (self.request.user == self.object)
+        return context
+
 class ProfileEditView(LoginRequiredMixin, UpdateView):
     model = User
     form_class = ProfileEditForm
