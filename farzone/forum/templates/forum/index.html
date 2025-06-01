@@ -21,11 +21,11 @@
             <h2 class="category-title">{{ active_category.title|default:"No Category Selected" }}</h2>
             {% if user.is_authenticated and active_category %}
             <button class="add-button">
-                <a href="{% url 'forum:post_create' slug=active_category.slug %}">+</a>
+                <a href="{% url 'post_create' slug=active_category.slug %}">+</a>
             </button>
             {% elif active_category %}
             <button class="add-button">
-                <a href="{% url 'users:login' %}?next={% url 'forum:post_create' slug=active_category.slug %}">+</a>
+                <a href="{% url 'users:login' %}?next={% url 'post_create' slug=active_category.slug %}">+</a>
             </button>
             {% endif %}
         </div>

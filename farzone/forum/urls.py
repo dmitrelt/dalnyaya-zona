@@ -11,8 +11,6 @@ from .views import (
     PostLikeView,
 )
 
-app_name = 'forum'
-
 urlpatterns = [
     path('', WelcomeView.as_view(), name='welcome'),
     path('forum/', ForumHomeView.as_view(), name='forum_home'),
