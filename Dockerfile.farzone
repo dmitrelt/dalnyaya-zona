@@ -9,17 +9,17 @@ RUN apt-get update && apt-get install -y \
     zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt .
+COPY farzone/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install whitenoise==6.7.0
 
-COPY . .
+COPY farzone/ .
 
 # Создание директорий и установка прав
 RUN mkdir -p /app/staticfiles /app/media /app/db
 RUN chmod -R 755 /app/staticfiles /app/media /app/db
-RUN python farzone/manage.py collectstatic --noinput --clear
+RUN python manage.py collectstatic --noinput --clear
 
-EXPOSE $PORT
+EXPOSE 8000
 
-CMD ["sh", "-c", "python farzone/manage.py migrate && gunicorn --bind 0.0.0.0:$PORT farzone.wsgi:application"]
+CMD ["sh", "-c", "python manage.py migrate && daphne -b 0.0.0.0 -p 8000 farzone.asgi:application"]

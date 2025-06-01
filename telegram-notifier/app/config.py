@@ -1,13 +1,14 @@
-from pydantic_settings import BaseSettings
+import os
+from dotenv import load_dotenv
 
-class Settings(BaseSettings):
-    TELEGRAM_BOT_TOKEN: str
-    TELEGRAM_CHAT_ID: str
-    API_KEY: str
+# Загружаем .env из корневой папки проекта
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '..', '..', '.env'))
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        extra = "ignore"
+
+class Settings:
+    TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+    TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
+    API_KEY = os.getenv("NOTIFIER_API_KEY", "secret-key")
+
 
 settings = Settings()
