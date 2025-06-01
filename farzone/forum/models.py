@@ -41,7 +41,7 @@ class Category(models.Model):
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse('forum:category_posts', kwargs={'slug': self.slug})
+        return reverse('category_posts', kwargs={'slug': self.slug})
 
 class Post(models.Model):
     author = models.ForeignKey(
@@ -90,7 +90,7 @@ class Post(models.Model):
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse('forum:post_detail', kwargs={'category_slug': self.category.slug, 'post_slug': self.slug})
+        return reverse('post_detail', kwargs={'category_slug': self.category.slug, 'post_slug': self.slug})
 
 class Comment(models.Model):
     author = models.ForeignKey(
