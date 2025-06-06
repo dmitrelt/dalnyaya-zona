@@ -32,7 +32,7 @@ services:
   - type: web
     name: notifier
     env: docker
-    dockerfilePath: ./dockerfile.notifier
+    dockerfilePath: ./Dockerfile.notifier
     plan: free
     region: oregon
     envVars:
