@@ -20,13 +20,7 @@
                 <div class="post-meta">
                     <span class="post-author">
                         <a href="{% url 'users:profile_view' username=post.author.username %}">
-                            {% if post.author.avatar %}
-                                <img src="{{ post.author.avatar.url }}" alt="Avatar" class="avatar-small">
-                            {% else %}
-                                <div class="avatar-placeholder avatar-small">
-                                    <i class="bi bi-person-circle"></i>
-                                </div>
-                            {% endif %}
+                            <i class="bi bi-person-circle profile-icon"></i>
                         </a>
                     </span>
 
@@ -77,18 +71,10 @@
                         <span class="comment-author">
                             {% if comment_data.comment.author and comment_data.comment.author.username %}
                             <a href="{% url 'users:profile_view' username=comment_data.comment.author.username %}">
-                                {% if comment_data.comment.author.avatar %}
-                                    <img src="{{ comment_data.comment.author.avatar.url }}" alt="Avatar" class="avatar-small">
-                                {% else %}
-                                    <div class="avatar-placeholder avatar-small">
-                                        <i class="bi bi-person-circle"></i>
-                                    </div>
-                                {% endif %}
+                                <i class="bi bi-person-circle profile-icon"></i>
                             </a>
                             {% else %}
-                            <div class="avatar-placeholder avatar-small">
-                                <i class="bi bi-person-circle"></i>
-                            </div>
+                            <i class="bi bi-person-circle profile-icon"></i>
                             {% endif %}
                         </span>
 

@@ -42,13 +42,7 @@
                     <div class="post-meta">
                         <span class="post-author">
                             <a href="{% url 'users:profile_view' username=post_data.post.author.username %}">
-                                {% if post_data.post.author.avatar %}
-                                    <img src="{{ post_data.post.author.avatar.url }}" alt="Avatar" class="avatar-small">
-                                {% else %}
-                                    <div class="avatar-placeholder avatar-small">
-                                        <i class="bi bi-person-circle"></i>
-                                    </div>
-                                {% endif %}
+                                <i class="bi bi-person-circle profile-icon"></i>
                             </a>
                         </span>
 

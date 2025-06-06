@@ -25,7 +25,10 @@ services:
       - key: YANDEX_MAPS_API_KEY
         sync: false
       - key: NOTIFIER_URL
-        value: https://notifier.onrender.com
+        fromService:
+          type: web
+          name: notifier
+          property: url
       - key: NOTIFIER_API_KEY
         value: secret-key
 
