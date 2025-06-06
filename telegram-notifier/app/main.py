@@ -22,25 +22,36 @@ class NotificationRequest(BaseModel):
     message: str
 
 @app.on_event("startup")
-def startup_event():
+async def startup_event():
     logger.info(f"Telegram Notifier Service started. Bot token: {settings.TELEGRAM_BOT_TOKEN[:4]}****, Chat ID: {settings.TELEGRAM_CHAT_ID}")
     if not settings.TELEGRAM_BOT_TOKEN or not settings.TELEGRAM_CHAT_ID:
         logger.error("Missing TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID")
         raise RuntimeError("Missing Telegram configuration")
 
 @app.get("/health/")
-def health_check():
+async def health_check():
     return {"status": "healthy"}
 
+@app.get("/debug/")
+async def debug_check():
+    return {
+        "status": "notifier running",
+        "notifier_url": settings.NOTIFIER_URL,
+        "bot_token": settings.TELEGRAM_BOT_TOKEN[:4] + "****",
+        "chat_id": settings.TELEGRAM_CHAT_ID
+    }
+
 @app.post("/notifications/", status_code=status.HTTP_200_OK)
-def create_notification(notification: NotificationRequest, api_key: str = Depends(verify_api_key)):
+async def create_notification(notification: NotificationRequest, api_key: str = Depends(verify_api_key)):
     logger.info(f"Received notification: {notification.name}, {notification.email}, {notification.message}")
     try:
-        if send_telegram_message(notification.name, notification.email, notification.message):
+        success = await send_telegram_message(notification.name, notification.email, notification.message)
+        if success:
             logger.info("Notification sent to Telegram successfully")
             return {"status": "Notification sent"}
         else:
-            raise Exception("Failed to send Telegram message")
+            logger.error("Failed to send Telegram message")
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to send Telegram message")
     except Exception as e:
         logger.error(f"Failed to send notification: {str(e)}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to send notification: {str(e)}")

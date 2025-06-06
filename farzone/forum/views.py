@@ -10,6 +10,9 @@ from .serializers import PostSerializer, CategorySerializer
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from django.views import View
+import logging
+
+logger = logging.getLogger(__name__)
 
 class WelcomeView(TemplateView):
     template_name = 'forum/welcome.html'
@@ -195,33 +198,38 @@ class PostLikeView(LoginRequiredMixin, View):
         user = request.user
         liked = PostLike.objects.filter(post=post, user=user).exists()
 
-        if liked:
-            PostLike.objects.filter(post=post, user=user).delete()
-            action = 'unliked'
-        else:
-            PostLike.objects.create(post=post, user=user)
-            action = 'liked'
+        try:
+            if liked:
+                PostLike.objects.filter(post=post, user=user).delete()
+                action = 'unliked'
+            else:
+                PostLike.objects.create(post=post, user=user)
+                action = 'liked'
 
-        likes_count = post.likes.count()
+            likes_count = post.likes.count()
+            logger.info(f"User {user.username} {action} post {post.id}, likes count: {likes_count}")
 
-        from channels.layers import get_channel_layer
-        from asgiref.sync import async_to_sync
-        channel_layer = get_channel_layer()
-        async_to_sync(channel_layer.group_send)(
-            f'post_{post.id}',
-            {
-                'type': 'like_update',
-                'message': {
-                    'post_id': post.id,
-                    'likes_count': likes_count,
-                    'action': action,
-                    'user_id': user.id
+            from channels.layers import get_channel_layer
+            from asgiref.sync import async_to_sync
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                f'post_{post.id}',
+                {
+                    'type': 'like_update',
+                    'message': {
+                        'post_id': post.id,
+                        'likes_count': likes_count,
+                        'action': action,
+                        'user_id': user.id
+                    }
                 }
-            }
-        )
+            )
 
-        return JsonResponse({
-            'status': 'success',
-            'action': action,
-            'likes_count': likes_count
-        })
+            return JsonResponse({
+                'status': 'success',
+                'action': action,
+                'likes_count': likes_count
+            })
+        except Exception as e:
+            logger.error(f"Error processing like for post {post.id} by user {user.username}: {str(e)}")
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)

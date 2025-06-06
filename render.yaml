@@ -45,3 +45,8 @@ services:
         sync: false
       - key: API_KEY
         value: secret-key
+      - key: NOTIFIER_URL
+        fromService:
+          type: web
+          name: notifier
+          property: url

@@ -111,9 +111,7 @@ REST_FRAMEWORK = {
 # Обработка REDIS_URL для Render
 raw_redis_url = os.getenv('REDIS_URL', 'redis://redis:6379/0')
 if 'RENDER' in os.environ:
-    # Render предоставляет REDIS_URL без схемы или с хостом/портом
     if not raw_redis_url.startswith(('redis://', 'rediss://', 'unix://')):
-        # Предполагаем, что Render использует rediss:// для бесплатного тарифа
         redis_url = f'rediss://{raw_redis_url}'
     else:
         redis_url = raw_redis_url
@@ -129,7 +127,6 @@ CHANNEL_LAYERS = {
             'hosts': [redis_url],
             'capacity': 1500,
             'expiry': 10,
-            'ssl': 'RENDER' in os.environ,  # Включаем SSL для Render
         },
     },
 }
