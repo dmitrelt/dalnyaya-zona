@@ -75,7 +75,6 @@ class ProfileView(LoginRequiredMixin, DetailView):
         context['is_own_profile'] = True
         return context
 
-
 class PublicProfileView(DetailView):
     model = User
     template_name = 'users/profile.html'
@@ -103,7 +102,7 @@ class ProfileEditView(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         try:
             user = form.save()
-            logger.info(f"Profile updated for user {user.username}, avatar: {user.avatar}")
+            logger.info(f"Profile updated for user {user.username}")
             return super().form_valid(form)
         except Exception as e:
             logger.error(f"Error updating profile for {self.request.user.username}: {str(e)}")

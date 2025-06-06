@@ -1,56 +1,44 @@
+databases:
+  - name: redis
+    databaseName: redis
+    plan: free
+    region: oregon
+
 services:
   - type: web
     name: farzone
     env: docker
-    dockerComposeFile: docker-compose.yml
+    dockerfilePath: ./Dockerfile.farzone
     plan: free
+    region: oregon
     envVars:
-      - key: SECRET_KEY
-        generateValue: true
       - key: DEBUG
         value: False
+      - key: SECRET_KEY
+        sync: false
       - key: ALLOWED_HOSTS
-        value: localhost,127.0.0.1,*.onrender.com
+        value: farzone.onrender.com,*.onrender.com,localhost
+      - key: REDIS_URL
+        fromDatabase:
+          name: redis
+          property: connectionString
+      - key: YANDEX_MAPS_API_KEY
+        sync: false
       - key: NOTIFIER_URL
         value: https://notifier.onrender.com
       - key: NOTIFIER_API_KEY
         value: secret-key
-      - key: YANDEX_MAPS_API_KEY
-        value: 0da8c4de-790a-498b-911e-a8330a5b0a70
-      - key: REDIS_URL
-        fromService:
-          type: redis
-          name: farzone_redis
-          property: connectionString
-    disk:
-      - name: sqlite-disk
-        mountPath: /app/db/db.sqlite3
-        sizeGB: 1
-      - name: staticfiles-disk
-        mountPath: /app/staticfiles
-        sizeGB: 1
-      - name: media-disk
-        mountPath: /app/media
-        sizeGB: 1
-    healthCheckPath: /health/
-    timeoutSeconds: 60
-
-  - type: redis
-    name: farzone_redis
-    plan: free
-    maxmemoryPolicy: allkeys-lru
 
   - type: web
     name: notifier
     env: docker
-    dockerComposeFile: docker-compose.yml
+    dockerfilePath: ./dockerfile.notifier
     plan: free
+    region: oregon
     envVars:
       - key: TELEGRAM_BOT_TOKEN
-        value: 7480135927:AAGwkJlU6iF2aNkAh2gfNtzwLNRwCca5kys
+        sync: false
       - key: TELEGRAM_CHAT_ID
-        value: 1175923220
-      - key: NOTIFIER_API_KEY
+        sync: false
+      - key: API_KEY
         value: secret-key
-    healthCheckPath: /health/
-    timeoutSeconds: 60

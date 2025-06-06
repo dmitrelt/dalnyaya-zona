@@ -4,15 +4,6 @@
 {% block content %}
 <div class="profile-container">
     <div class="profile-header">
-        <div class="profile-avatar">
-            {% if profile_user.avatar %}
-                <img src="{{ profile_user.avatar.url }}" alt="Avatar" class="avatar-large">
-            {% else %}
-                <div class="avatar-placeholder">
-                    <i class="bi bi-person-circle"></i>
-                </div>
-            {% endif %}
-        </div>
         <div class="profile-info">
             <h1>{{ profile_user.username }}</h1>
             {% if is_own_profile %}

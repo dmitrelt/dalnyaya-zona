@@ -5,8 +5,6 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     gcc \
     python3-dev \
-    libjpeg-dev \
-    zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
 COPY farzone/requirements.txt .
@@ -16,8 +14,8 @@ RUN pip install whitenoise==6.7.0
 COPY farzone/ .
 
 # Создание директорий и установка прав
-RUN mkdir -p /app/staticfiles /app/media /app/db
-RUN chmod -R 777 /app/staticfiles /app/media /app/db
+RUN mkdir -p /app/staticfiles /app/db
+RUN chmod -R 777 /app/staticfiles /app/db
 RUN python manage.py collectstatic --noinput --clear
 
 EXPOSE 8000

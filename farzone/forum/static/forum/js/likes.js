@@ -1,4 +1,10 @@
 document.addEventListener('DOMContentLoaded', function () {
+    const isAuthenticated = document.body.dataset.authenticated === 'true';
+    if (!isAuthenticated) {
+        console.log('User is not authenticated, like functionality disabled');
+        return;
+    }
+
     const likeIcons = document.querySelectorAll('.like-icon');
     console.log('Found like icons:', likeIcons.length);
 
@@ -57,7 +63,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     console.error('Invalid response status:', data.status);
                 }
             })
-            .catch(error => console.error('Fetch error:', error));
+            .catch(error => {
+                console.error('Fetch error:', error);
+                alert('Ошибка при обновлении лайка. Пожалуйста, попробуйте позже.');
+            });
         });
     });
 

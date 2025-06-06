@@ -173,7 +173,7 @@ class ContactMessage(models.Model):
                         'email': self.email,
                         'message': self.message,
                     },
-                    timeout=10,
+                    timeout=5,  # Уменьшен таймаут для более быстрого ответа
                 )
                 response.raise_for_status()
                 self.is_notified = True

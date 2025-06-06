@@ -21,8 +21,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'forum.apps.ForumConfig',
     'users.apps.UsersConfig',
-    'image_cropping',
-    'easy_thumbnails',
     'rest_framework',
     'rest_framework.authtoken',
     'channels',
@@ -80,12 +78,9 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = []  # Убрано, так как папка static не существует
+STATICFILES_DIRS = []
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
 
 AUTH_USER_MODEL = 'users.User'
 
@@ -115,7 +110,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            'hosts': [REDIS_URL],
+            'hosts': [os.getenv('REDIS_URL', 'redis://redis:6379/0')],
             'capacity': 1500,
             'expiry': 10,
         },
@@ -123,15 +118,8 @@ CHANNEL_LAYERS = {
 }
 
 YANDEX_MAPS_API_KEY = os.environ.get('YANDEX_MAPS_API_KEY')
-NOTIFIER_URL = os.environ.get('NOTIFIER_URL')
-NOTIFIER_API_KEY = os.environ.get('NOTIFIER_API_KEY')
+NOTIFIER_URL = os.environ.get('NOTIFIER_URL', 'https://notifier.onrender.com')
+NOTIFIER_API_KEY = os.environ.get('NOTIFIER_API_KEY', 'secret-key')
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 CSRF_TRUSTED_ORIGINS = ['https://*.onrender.com']
-
-# Настройки для image_cropping и easy_thumbnails
-THUMBNAIL_ALIASES = {
-    '': {
-        'avatar': {'size': (200, 200), 'crop': True},
-    },
-}
