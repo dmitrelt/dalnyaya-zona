@@ -93,7 +93,7 @@ LOGOUT_REDIRECT_URL = 'forum_home'
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': os.getenv('REDIS_URL', 'redis://redis:6379/0'),
+        'LOCATION': os.environ.get('REDIS_URL', 'redis://redis:6379/0'),
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
         }
@@ -110,11 +110,16 @@ REST_FRAMEWORK = {
     ],
 }
 
+redis_url = os.environ.get('REDIS_URL', 'redis://redis:6379/0')
+if 'render.com' in os.environ.get('ALLOWED_HOSTS', '') and not redis_url.startswith(('redis://', 'rediss://')):
+    redis_url = f"rediss://{redis_url.lstrip('redis://')}"
+    logger.info(f"Adjusted REDIS_URL to {redis_url}")
+
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            'hosts': [os.getenv('REDIS_URL', 'redis://redis:6379/0')],
+            'hosts': [redis_url],
         },
     },
 }
@@ -125,3 +130,6 @@ NOTIFIER_API_KEY = os.environ.get('NOTIFIER_API_KEY', 'secret-key')
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 CSRF_TRUSTED_ORIGINS = ['https://*.onrender.com', 'https://farzone.onrender.com']
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+SECURE_SSL_REDIRECT = True

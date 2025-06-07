@@ -13,6 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = `${wsProtocol}//${window.location.host}/ws/post/${postId}/`;
+    console.log('Attempting WebSocket connection:', wsUrl);
+
     const socket = new WebSocket(wsUrl);
 
     socket.onopen = () => {
@@ -36,14 +38,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     likeIcon.classList.toggle('bi-heart-fill', action === 'liked');
                     likeIcon.dataset.liked = action === 'liked' ? 'true' : 'false';
                 }
+                console.log(`Received like update: post ${post_id}, action ${action}, count ${likes_count}`);
             }
         } catch (error) {
             console.error('WebSocket message error:', error);
         }
     };
 
-    socket.onclose = () => {
-        console.warn(`WebSocket closed for post ${postId}`);
+    socket.onclose = (event) => {
+        console.warn(`WebSocket closed for post ${postId}: code ${event.code}, reason ${event.reason}`);
     };
 
     socket.onerror = (error) => {

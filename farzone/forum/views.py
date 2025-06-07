@@ -3,6 +3,8 @@ from django.urls import reverse
 from django.views.generic import ListView, DetailView, CreateView, TemplateView
 from django.shortcuts import get_object_or_404, redirect
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 from .forms import CommentForm, PostForm, ContactForm
 from .models import Category, Post, Comment, PostLike, ContactMessage
 from django.conf import settings
@@ -194,38 +196,41 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
             'post_slug': self.kwargs['post_slug']
         }) + '#comments'
 
+@method_decorator(csrf_exempt, name='dispatch')
 class PostLikeView(LoginRequiredMixin, View):
     def post(self, request, category_slug, post_slug):
+        logger.info(f"Received like request for category_slug={category_slug}, post_slug={post_slug}, user={request.user.username}")
         if not request.user.is_authenticated:
+            logger.warning("Unauthenticated user attempted to like post")
             return JsonResponse({'status': 'error', 'message': 'Authentication required'}, status=401)
 
         post = get_object_or_404(Post, category__slug=category_slug, slug=post_slug)
-        user = request.user
         try:
-            liked = PostLike.objects.filter(post=post, user=user).exists()
+            liked = PostLike.objects.filter(post=post, user=request.user).exists()
             action = 'unliked' if liked else 'liked'
 
             if liked:
-                PostLike.objects.filter(post=post, user=user).delete()
+                PostLike.objects.filter(post=post, user=request.user).delete()
             else:
-                PostLike.objects.create(post=post, user=user)
+                PostLike.objects.create(post=post, user=request.user)
 
             likes_count = post.likes.count()
-            logger.info(f"User {user.username} {action} post {post.id}, likes count: {likes_count}")
+            logger.info(f"User {request.user.username} {action} post {post.id}, likes count: {likes_count}")
 
             channel_layer = get_channel_layer()
-            async_to_sync(channel_layer.group_send)(
-                f'post_{post.id}',
-                {
-                    'type': 'like_update',
-                    'message': {
+            if channel_layer:
+                async_to_sync(channel_layer.group_send)(
+                    f'post_{post.id}',
+                    {
+                        'type': 'like_update',
                         'post_id': post.id,
                         'likes_count': likes_count,
                         'action': action,
-                        'user_id': user.id
+                        'user_id': request.user.id
                     }
-                }
-            )
+                )
+            else:
+                logger.error("Channel layer not initialized")
 
             return JsonResponse({
                 'status': 'success',
@@ -233,5 +238,5 @@ class PostLikeView(LoginRequiredMixin, View):
                 'likes_count': likes_count
             })
         except Exception as e:
-            logger.error(f"Error processing like for post {post.id} by user {user.username}: {str(e)}")
+            logger.error(f"Error processing like for post {post.id} by user {request.user.username}: {str(e)}")
             return JsonResponse({'status': 'error', 'message': 'Internal server error'}, status=500)
