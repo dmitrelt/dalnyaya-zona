@@ -17,13 +17,13 @@ venv.bak/
 *.log
 *.pot
 *.pyc
+local_settings.py
+db.sqlite3
 migrations/
-
 staticfiles/
 media/
 
 # Docker
-Dockerfile*
 docker-compose*.yml
 docker-compose.override.yml
 

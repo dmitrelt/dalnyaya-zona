@@ -3,7 +3,7 @@ databases:
     databaseName: redis
     plan: free
     region: oregon
-    redis: true
+    redis: true  # Ensures this is a Redis instance, not PostgreSQL
 
 services:
   - type: web
@@ -16,7 +16,7 @@ services:
       - key: DEBUG
         value: False
       - key: SECRET_KEY
-        sync: false
+        sync: false  # Set in Render Dashboard or GitHub Secrets
       - key: ALLOWED_HOSTS
         value: farzone.onrender.com,*.onrender.com
       - key: REDIS_URL
@@ -24,14 +24,14 @@ services:
           name: redis
           property: connectionString
       - key: YANDEX_MAPS_API_KEY
-        sync: false
+        sync: false  # Set in Render Dashboard or GitHub Secrets
       - key: NOTIFIER_URL
         fromService:
           type: web
           name: notifier
           property: url
       - key: NOTIFIER_API_KEY
-        value: secret-key
+        value: secret-key  # Consider moving to secrets for security
 
   - type: web
     name: notifier
@@ -41,11 +41,11 @@ services:
     region: oregon
     envVars:
       - key: TELEGRAM_BOT_TOKEN
-        sync: false
+        sync: false  # Set in Render Dashboard or GitHub Secrets
       - key: TELEGRAM_CHAT_ID
-        sync: false
+        sync: false  # Set in Render Dashboard or GitHub Secrets
       - key: API_KEY
-        value: secret-key
+        value: secret-key  # Consider moving to secrets for security
       - key: NOTIFIER_URL
         fromService:
           type: web

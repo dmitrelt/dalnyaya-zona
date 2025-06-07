@@ -1,0 +1,49 @@
+name: CI/CD for ttforum
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Build farzone Docker image
+      - name: Build farzone Docker image
+        run: |
+          docker build -f Dockerfile.farzone -t farzone:latest .
+
+      # Build telegram-notifier Docker image
+      - name: Build telegram-notifier Docker image
+        run: |
+          docker build -f Dockerfile.notifier -t telegram-notifier:latest .
+
+      # Deploy farzone to Render
+      - name: Deploy farzone to Render
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID_FARZONE: ${{ secrets.RENDER_SERVICE_ID_FARZONE }}
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer $RENDER_API_KEY" \
+            -H "Content-Type: application/json" \
+            https://api.render.com/v1/services/$RENDER_SERVICE_ID_FARZONE/deploys
+
+      # Deploy telegram-notifier to Render
+      - name: Deploy telegram-notifier to Render
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID_NOTIFIER: ${{ secrets.RENDER_SERVICE_ID_NOTIFIER }}
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer $RENDER_API_KEY" \
+            -H "Content-Type: application/json" \
+            https://api.render.com/v1/services/$RENDER_SERVICE_ID_NOTIFIER/deploys
