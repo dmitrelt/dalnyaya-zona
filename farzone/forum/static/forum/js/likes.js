@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!postId || !postSlug || !categorySlug) {
                 console.error('Missing post data:', { postId, postSlug, categorySlug });
+                alert('Ошибка: отсутствуют данные поста');
                 return;
             }
 
@@ -24,7 +25,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRFToken': getCsrfToken()
                     },
                     credentials: 'same-origin'
                 });
@@ -49,9 +49,4 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
-
-    function getCsrfToken() {
-        const cookie = document.cookie.split(';').find(c => c.trim().startsWith('csrftoken='));
-        return cookie ? cookie.split('=')[1] : '';
-    }
 });

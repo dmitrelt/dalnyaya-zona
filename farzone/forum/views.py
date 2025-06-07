@@ -217,20 +217,25 @@ class PostLikeView(LoginRequiredMixin, View):
             likes_count = post.likes.count()
             logger.info(f"User {request.user.username} {action} post {post.id}, likes count: {likes_count}")
 
-            channel_layer = get_channel_layer()
-            if channel_layer:
-                async_to_sync(channel_layer.group_send)(
-                    f'post_{post.id}',
-                    {
-                        'type': 'like_update',
-                        'post_id': post.id,
-                        'likes_count': likes_count,
-                        'action': action,
-                        'user_id': request.user.id
-                    }
-                )
-            else:
-                logger.error("Channel layer not initialized")
+            # Attempt WebSocket update, but don't fail the request
+            try:
+                channel_layer = get_channel_layer()
+                if channel_layer:
+                    async_to_sync(channel_layer.group_send)(
+                        f'post_{post.id}',
+                        {
+                            'type': 'like_update',
+                            'post_id': post.id,
+                            'likes_count': likes_count,
+                            'action': action,
+                            'user_id': request.user.id
+                        }
+                    )
+                    logger.info(f"Sent WebSocket update for post {post.id}")
+                else:
+                    logger.warning("Channel layer not initialized, skipping WebSocket update")
+            except Exception as e:
+                logger.error(f"Failed to send WebSocket update for post {post.id}: {str(e)}")
 
             return JsonResponse({
                 'status': 'success',

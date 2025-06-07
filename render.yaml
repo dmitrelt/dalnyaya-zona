@@ -3,6 +3,7 @@ databases:
     databaseName: redis
     plan: free
     region: oregon
+    redis: true
 
 services:
   - type: web

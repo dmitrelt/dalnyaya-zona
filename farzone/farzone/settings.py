@@ -111,18 +111,26 @@ REST_FRAMEWORK = {
 }
 
 redis_url = os.environ.get('REDIS_URL', 'redis://redis:6379/0')
-if 'render.com' in os.environ.get('ALLOWED_HOSTS', '') and not redis_url.startswith(('redis://', 'rediss://')):
-    redis_url = f"rediss://{redis_url.lstrip('redis://')}"
-    logger.info(f"Adjusted REDIS_URL to {redis_url}")
-
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            'hosts': [redis_url],
+if redis_url.startswith('postgresql://'):
+    logger.error(f"Invalid REDIS_URL: {redis_url}. Falling back to dummy backend for CHANNEL_LAYERS")
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels.layers.InMemoryChannelLayer',
         },
-    },
-}
+    }
+else:
+    if 'render.com' in os.environ.get('ALLOWED_HOSTS', '') and not redis_url.startswith(('redis://', 'rediss://')):
+        redis_url = f"rediss://{redis_url.lstrip('redis://')}"
+        logger.info(f"Adjusted REDIS_URL to {redis_url}")
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels_redis.core.RedisChannelLayer',
+            'CONFIG': {
+                'hosts': [redis_url],
+                'symmetric_encryption_keys': [SECRET_KEY],
+            },
+        },
+    }
 
 YANDEX_MAPS_API_KEY = os.environ.get('YANDEX_MAPS_API_KEY')
 NOTIFIER_URL = os.environ.get('NOTIFIER_URL', 'https://notifier-gzrx.onrender.com')

@@ -18,6 +18,10 @@ RUN mkdir -p /app/staticfiles /app/db
 RUN chmod -R 777 /app/staticfiles /app/db
 RUN python manage.py collectstatic --noinput --clear
 
+# Проверка миграций
+RUN python manage.py makemigrations
+RUN python manage.py migrate
+
 EXPOSE 8000
 
 CMD ["sh", "-c", "python manage.py migrate && daphne -b 0.0.0.0 -p 8000 farzone.asgi:application"]
