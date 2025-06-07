@@ -11,6 +11,8 @@ from rest_framework import generics
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from django.views import View
 import logging
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 
 logger = logging.getLogger(__name__)
 
@@ -194,23 +196,23 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
 
 class PostLikeView(LoginRequiredMixin, View):
     def post(self, request, category_slug, post_slug):
+        if not request.user.is_authenticated:
+            return JsonResponse({'status': 'error', 'message': 'Authentication required'}, status=401)
+
         post = get_object_or_404(Post, category__slug=category_slug, slug=post_slug)
         user = request.user
-        liked = PostLike.objects.filter(post=post, user=user).exists()
-
         try:
+            liked = PostLike.objects.filter(post=post, user=user).exists()
+            action = 'unliked' if liked else 'liked'
+
             if liked:
                 PostLike.objects.filter(post=post, user=user).delete()
-                action = 'unliked'
             else:
                 PostLike.objects.create(post=post, user=user)
-                action = 'liked'
 
             likes_count = post.likes.count()
             logger.info(f"User {user.username} {action} post {post.id}, likes count: {likes_count}")
 
-            from channels.layers import get_channel_layer
-            from asgiref.sync import async_to_sync
             channel_layer = get_channel_layer()
             async_to_sync(channel_layer.group_send)(
                 f'post_{post.id}',
@@ -232,4 +234,4 @@ class PostLikeView(LoginRequiredMixin, View):
             })
         except Exception as e:
             logger.error(f"Error processing like for post {post.id} by user {user.username}: {str(e)}")
-            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+            return JsonResponse({'status': 'error', 'message': 'Internal server error'}, status=500)

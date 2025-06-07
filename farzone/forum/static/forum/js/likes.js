@@ -1,8 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
     const likeIcons = document.querySelectorAll('.like-icon');
+    const isAuthenticated = document.body.dataset.authenticated === 'true';
+
     likeIcons.forEach(icon => {
         icon.addEventListener('click', async (e) => {
-            const icon = e.target;
+            if (!isAuthenticated) {
+                window.location.href = '/users/login/';
+                return;
+            }
+
             const postId = icon.dataset.postId;
             const postSlug = icon.dataset.postSlug;
             const categorySlug = icon.dataset.categorySlug;
@@ -33,8 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     icon.classList.toggle('bi-heart-fill', data.action === 'liked');
                     icon.dataset.liked = data.action === 'liked' ? 'true' : 'false';
                 } else {
-                    console.error('Like error:', data.message);
-                    alert('Ошибка при обработке лайка');
+                    alert(data.message || 'Ошибка при обработке лайка');
                 }
             } catch (error) {
                 console.error('Fetch error:', error);
@@ -44,6 +49,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function getCsrfToken() {
+        const tokenElement = document.querySelector('meta[name="csrf-token"]');
+        if (tokenElement) return tokenElement.content;
         const cookie = document.cookie.split(';').find(c => c.trim().startsWith('csrftoken='));
         return cookie ? cookie.split('=')[1] : '';
     }

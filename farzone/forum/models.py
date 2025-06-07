@@ -6,6 +6,9 @@ from django.utils.text import slugify
 import uuid
 import requests
 import logging
+from asgiref.sync import async_to_sync
+import aiohttp
+import asyncio
 
 logger = logging.getLogger(__name__)
 
@@ -158,11 +161,10 @@ class ContactMessage(models.Model):
     def __str__(self):
         return f'Сообщение от {self.name} ({self.email})'
 
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        if not self.is_notified:
+    async def send_notification(self):
+        async with aiohttp.ClientSession() as session:
             try:
-                response = requests.post(
+                response = await session.post(
                     f"{settings.NOTIFIER_URL.rstrip('/')}/notifications/",
                     headers={
                         'X-API-Key': settings.NOTIFIER_API_KEY,
@@ -173,11 +175,16 @@ class ContactMessage(models.Model):
                         'email': self.email,
                         'message': self.message,
                     },
-                    timeout=5,  # Уменьшен таймаут для более быстрого ответа
+                    timeout=5
                 )
                 response.raise_for_status()
                 self.is_notified = True
-                super().save(update_fields=['is_notified'])
+                await asyncio.get_event_loop().run_in_executor(None, self.save)
                 logger.info(f"Notification sent to Telegram for {self.name}, {self.email}")
-            except requests.RequestException as e:
-                logger.error(f"Failed to send notification to Telegram: {str(e)}, Response: {getattr(e.response, 'text', 'No response')}")
+            except aiohttp.ClientError as e:
+                logger.error(f"Failed to send notification to Telegram: {str(e)}")
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if not self.is_notified:
+            asyncio.run(self.send_notification())

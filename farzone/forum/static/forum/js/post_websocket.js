@@ -4,17 +4,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const postId = postDetail.dataset.postId;
     const userId = postDetail.dataset.userId;
+    const isAuthenticated = document.body.dataset.authenticated === 'true';
 
     if (!postId) {
         console.error('Missing post ID');
         return;
     }
 
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const host = window.location.host;
-    const wsUrl = `${protocol}//${host}/ws/post/${postId}/`;
-    console.log('Connecting to WebSocket:', wsUrl);
-
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${wsProtocol}//${window.location.host}/ws/post/${postId}/`;
     const socket = new WebSocket(wsUrl);
 
     socket.onopen = () => {
@@ -25,18 +23,18 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const data = JSON.parse(event.data);
             if (data.type === 'like_update') {
-                const message = data.message;
-                const likesCountElement = document.querySelector(`.likes-count[data-post-id="${message.post_id}"]`);
-                const likeIcon = document.querySelector(`.like-icon[data-post-id="${message.post_id}"]`);
+                const { post_id, likes_count, action, user_id } = data;
+                const likesCountElement = document.querySelector(`.likes-count[data-post-id="${post_id}"]`);
+                const likeIcon = document.querySelector(`.like-icon[data-post-id="${post_id}"]`);
 
                 if (likesCountElement) {
-                    likesCountElement.textContent = message.likes_count;
+                    likesCountElement.textContent = likes_count;
                 }
 
-                if (likeIcon && message.user_id !== userId) {
-                    likeIcon.classList.toggle('bi-heart', message.action === 'unliked');
-                    likeIcon.classList.toggle('bi-heart-fill', message.action === 'liked');
-                    likeIcon.dataset.liked = message.action === 'liked' ? 'true' : 'false';
+                if (likeIcon && user_id !== userId && isAuthenticated) {
+                    likeIcon.classList.toggle('bi-heart', action === 'unliked');
+                    likeIcon.classList.toggle('bi-heart-fill', action === 'liked');
+                    likeIcon.dataset.liked = action === 'liked' ? 'true' : 'false';
                 }
             }
         } catch (error) {
@@ -44,8 +42,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    socket.onclose = (event) => {
-        console.warn(`WebSocket closed for post ${postId}:`, event);
+    socket.onclose = () => {
+        console.warn(`WebSocket closed for post ${postId}`);
     };
 
     socket.onerror = (error) => {

@@ -11,8 +11,7 @@ DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 allowed_hosts = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1')
 ALLOWED_HOSTS = [host.strip() for host in allowed_hosts.split(',') if host.strip()]
-if 'farzone.onrender.com' not in ALLOWED_HOSTS:
-    ALLOWED_HOSTS.append('farzone.onrender.com')
+ALLOWED_HOSTS.append('farzone.onrender.com')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -93,8 +92,11 @@ LOGOUT_REDIRECT_URL = 'forum_home'
 
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'BACKEND': 'django_redis.cache.RedisCache',
         'LOCATION': os.getenv('REDIS_URL', 'redis://redis:6379/0'),
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
     }
 }
 
@@ -108,32 +110,18 @@ REST_FRAMEWORK = {
     ],
 }
 
-# Обработка REDIS_URL для Render
-raw_redis_url = os.getenv('REDIS_URL', 'redis://redis:6379/0')
-if 'RENDER' in os.environ:
-    if not raw_redis_url.startswith(('redis://', 'rediss://', 'unix://')):
-        redis_url = f'rediss://{raw_redis_url}'
-    else:
-        redis_url = raw_redis_url
-else:
-    redis_url = raw_redis_url
-
-logger.info(f"Using Redis URL: {redis_url}")
-
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            'hosts': [redis_url],
-            'capacity': 1500,
-            'expiry': 10,
+            'hosts': [os.getenv('REDIS_URL', 'redis://redis:6379/0')],
         },
     },
 }
 
 YANDEX_MAPS_API_KEY = os.environ.get('YANDEX_MAPS_API_KEY')
-NOTIFIER_URL = os.environ.get('NOTIFIER_URL', 'https://notifier.onrender.com')
+NOTIFIER_URL = os.environ.get('NOTIFIER_URL', 'https://notifier-gzrx.onrender.com')
 NOTIFIER_API_KEY = os.environ.get('NOTIFIER_API_KEY', 'secret-key')
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-CSRF_TRUSTED_ORIGINS = ['https://*.onrender.com']
+CSRF_TRUSTED_ORIGINS = ['https://*.onrender.com', 'https://farzone.onrender.com']
