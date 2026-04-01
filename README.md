@@ -285,12 +285,8 @@ RENDER_SERVICE_ID_NOTIFIER=service_id
 
 Бот отправляет уведомления администратору при заполнении формы обратной связи на сайте.
 
-### Как получить токены
-
-1. **Bot Token:** Создайте бота через [@BotFather](https://t.me/botfather)
-2. **Chat ID:** Узнайте через [@userinfobot](https://t.me/userinfobot)
-
 ---
+
 
 ## 👨‍💻 Автор
 
@@ -306,9 +302,11 @@ RENDER_SERVICE_ID_NOTIFIER=service_id
 
 ---
 
-## 🙏 Благодарности
+## Скриншоты:
 
-- [Django Documentation](https://docs.djangoproject.com/)
-- [FastAPI Documentation](https://fastapi.tiangolo.com/)
-- [Django Channels](https://channels.readthedocs.io/)
-- [python-telegram-bot](https://docs.python-telegram-bot.org/)
+<img width="1646" height="1012" alt="image" src="https://github.com/user-attachments/assets/9fbc4dd7-2220-4fff-a474-658b2da36158" />
+<img width="1648" height="871" alt="image" src="https://github.com/user-attachments/assets/c9457ebf-09cc-42bb-834b-178f6eba7edf" />
+<img width="1540" height="972" alt="image" src="https://github.com/user-attachments/assets/3b92a032-1c29-4b26-a8b6-572ad2714d2b" />
+<img width="1543" height="986" alt="image" src="https://github.com/user-attachments/assets/6ec12166-6ab2-4613-a0c1-2b20e2d7945e" />
+
+
